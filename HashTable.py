@@ -5,7 +5,7 @@ class HashTableEntry:
 
 
 class HashMap:
-    def __init__(self, initial_capacity=17000):
+    def __init__(self, initial_capacity=10):
         self.map = []
         for i in range(initial_capacity):
             self.map.append([])
@@ -50,3 +50,5 @@ class HashMap:
                     return True
         else:
             print("There was no matching record to update")
+
+
