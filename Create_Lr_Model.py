@@ -8,24 +8,39 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import OneHotEncoder
+list_of_genres = []
+list_of_platforms = []
 
 df = pd.read_csv('./data/video_game_sales.csv')
 
-enc = OneHotEncoder(categories='auto', handle_unknown='ignore')
-feature_arr = enc.fit_transform(df[['Genre', 'Platform']]).toarray()
-feature_labels = enc.get_feature_names_out()
-feature_labels = np.array(feature_labels, dtype=object).ravel()
-features = pd.DataFrame(feature_arr, columns=feature_labels)
+for index, row in df.iterrows():
+    genre = row.Genre
+    platform = row.Platform
 
-df = df.join(features).dropna()
+    if genre not in list_of_genres:
+        list_of_genres.append(genre)
+    if platform not in list_of_platforms:
+        list_of_platforms.append(platform)
+
+    # Sort to ensure same order every run
+    list_of_genres.sort()
+    list_of_platforms.sort()
+
+for index, row in df.iterrows():
+    genre_index = list_of_genres.index(row.Genre) + 1
+    platform_index = list_of_platforms.index(row.Platform) + 1
+
+    df.loc[index, 'Genre'] = genre_index
+    df.loc[index, 'Platform'] = platform_index
 
 # Break down into X inputs and Y output, drop columns we don't care about
-x = df.drop(['Global_Sales', 'Platform', 'Genre', 'Publisher', 'Name'], axis=1)
-
+x = df.drop(['Global_Sales', 'Publisher', 'Name', 'Rank', 'Year',
+             'NA_Sales', 'JP_Sales', 'Other_Sales', 'EU_Sales'], axis=1)
+print(x)
 x = x
 y = df.Global_Sales
 
+print(x)
 # 20% of the data set will go to the test size, 80% to training
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
@@ -37,6 +52,16 @@ lr.fit(x_train, y_train)
 y_lr_train_pred = lr.predict(x_train)
 y_lr_test_pred = lr.predict(x_test)
 
+r_sq = lr.score(x_train, y_train)
+
+def run_stuff():
+    y_pred = lr.predict()
+    print(y_pred)
+
+def predict_sales(platform, genre):
+    print('hi')
+    y_pred = lr.predict([])
+    return y_pred
 
 def show_real_vs_predicted():
     plt.figure(figsize=(10, 10))
